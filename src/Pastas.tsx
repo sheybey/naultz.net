@@ -34,6 +34,14 @@ export default function Pastas({ pastas }: PastasProps) {
   //   return [];
   // }, [lower, categories]);
 
+  const [linked, setLinked] = useState(() => {
+    const fragment = window.location.hash;
+    if (fragment.startsWith("#pasta-")) {
+      return parseInt(fragment.substring(7));
+    }
+    return undefined;
+  });
+
   const pastaLengths = useMemo(() => {
     const style = getComputedStyle(document.body);
     let lineHeight = parseFloat(style.lineHeight);
@@ -65,6 +73,7 @@ export default function Pastas({ pastas }: PastasProps) {
   const [matchingPastas, setMatchingPastas] = useState<Pasta[]>(pastas);
   const updateMatchingPastas = useCallback(
     (filter: string) => {
+      setLinked(undefined);
       const lower = filter.trim().toLowerCase();
       setMatchingPastas(
         pastas.filter(
@@ -73,7 +82,7 @@ export default function Pastas({ pastas }: PastasProps) {
         ),
       );
     },
-    [pastas, setMatchingPastas],
+    [pastas, setMatchingPastas, setLinked],
   );
   const updateMatchingPastasDebounced = useDebounce(250, updateMatchingPastas);
 
@@ -147,7 +156,11 @@ export default function Pastas({ pastas }: PastasProps) {
           <div key={idx}>
             {col.map((p) => (
               <div className="mb-4" key={p.key}>
-                <CopyPasta data={p} onCategoryClicked={setSearchToCategory} />
+                <CopyPasta
+                  data={p}
+                  onCategoryClicked={setSearchToCategory}
+                  linked={linked !== undefined && p.key == linked}
+                />
               </div>
             ))}
           </div>
