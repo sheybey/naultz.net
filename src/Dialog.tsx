@@ -56,6 +56,13 @@ export default function Dialog() {
           Naultz24 has 1 fan, that one is me. If Naultz24 has no fans, I'm no longer
           alive. If the world is against Naultz24, I'm against the entire world.
         </p>
+        <p>
+          If you've spotted something broken, or if your CSS chops are better than mine,
+          feel free to{" "}
+          <a className="underline" href="https://github.com/sheybey/naultz.net">
+            contribute a fix!
+          </a>
+        </p>
       </dialog>
     </>
   );
