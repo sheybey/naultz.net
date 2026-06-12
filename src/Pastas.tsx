@@ -3,7 +3,7 @@ import {
   layoutNextLineRange,
   type LayoutCursor,
 } from "@chenglou/pretext";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type MouseEvent } from "react";
 import type { Pasta } from "./pasta";
 import { useDebounce, useWidth } from "./hooks";
 import CopyPasta from "./CopyPasta";
@@ -116,6 +116,14 @@ export default function Pastas({ pastas }: PastasProps) {
     return lanes;
   }, [pastaLengths, matchingPastas, nColumns]);
 
+  const onLinkClicked = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>, key: number) => {
+      event.preventDefault();
+      setLinked(key);
+    },
+    [setLinked],
+  );
+
   return (
     <div className="py-8 px-2 w-full flex flex-col items-center justify-start gap-6">
       <div>
@@ -159,7 +167,8 @@ export default function Pastas({ pastas }: PastasProps) {
                 <CopyPasta
                   data={p}
                   onCategoryClicked={setSearchToCategory}
-                  linked={linked !== undefined && p.key == linked}
+                  onLinkClicked={onLinkClicked}
+                  linked={p.key === linked}
                 />
               </div>
             ))}

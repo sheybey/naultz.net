@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import type { Pasta } from "./pasta";
 
 interface CopyPastaProps {
   data: Pasta;
   onCategoryClicked?: (category: string) => void;
+  onLinkClicked?: (event: MouseEvent<HTMLAnchorElement>, key: number) => void;
   linked?: boolean;
 }
 
 export default function CopyPasta({
   data,
   onCategoryClicked,
+  onLinkClicked,
   linked = false,
 }: CopyPastaProps) {
   const [copied, setCopied] = useState<number>();
@@ -42,22 +44,32 @@ export default function CopyPasta({
 
   useEffect(() => {
     if (linked && ref.current) {
-      ref.current.scrollIntoView();
+      window.history.replaceState(null, "", "#pasta-" + String(data.key));
+      ref.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [linked]);
+  }, [linked, data]);
 
   return (
     <>
       <div className="text-xs px-3 mb-1 flex justify-between">
         <button
           className="cursor-pointer"
-          onClick={useCallback(() => {
-            onCategoryClicked?.(data.category);
-          }, [onCategoryClicked, data])}
+          onClick={useCallback(
+            () => onCategoryClicked?.(data.category),
+            [onCategoryClicked, data],
+          )}
         >
           {data.category}
         </button>
-        <a id={`pasta-${data.key}`} href={`#pasta-${data.key}`} ref={ref}>
+        <a
+          id={`pasta-${data.key}`}
+          href={`#pasta-${data.key}`}
+          ref={ref}
+          onClick={useCallback(
+            (e) => onLinkClicked?.(e, data.key),
+            [onLinkClicked, data],
+          )}
+        >
           link
         </a>
       </div>
