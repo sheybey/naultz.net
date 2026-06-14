@@ -8,9 +8,15 @@ import type { Pasta } from "./pasta";
 import { useDebounce, useWidth } from "./hooks";
 import CopyPasta from "./CopyPasta";
 import Dialog from "./Dialog";
+import type { SearchMatch } from "./search-match";
 
 interface PastasProps {
   pastas: Pasta[];
+}
+
+interface PastaWithMatch {
+  pasta: Pasta;
+  match?: SearchMatch;
 }
 
 export default function Pastas({ pastas }: PastasProps) {
@@ -70,17 +76,32 @@ export default function Pastas({ pastas }: PastasProps) {
     return lengths;
   }, [pastas]);
 
-  const [matchingPastas, setMatchingPastas] = useState<Pasta[]>(pastas);
+  const [matchingPastas, setMatchingPastas] = useState<PastaWithMatch[]>(() =>
+    pastas.map((pasta) => ({ pasta })),
+  );
   const updateMatchingPastas = useCallback(
     (filter: string) => {
       setLinked(undefined);
       const lower = filter.trim().toLowerCase();
-      setMatchingPastas(
-        pastas.filter(
-          (p) =>
-            p.category.toLowerCase() === lower || p.pasta.toLowerCase().includes(lower),
-        ),
-      );
+      if (lower) {
+        const matching: PastaWithMatch[] = [];
+        for (const pasta of pastas) {
+          if (pasta.category === filter) {
+            matching.push({ pasta: pasta, match: { type: "category" } });
+          } else {
+            const start = pasta.pasta.toLowerCase().indexOf(lower);
+            if (start !== -1) {
+              matching.push({
+                pasta: pasta,
+                match: { type: "pasta", start, end: start + lower.length },
+              });
+            }
+          }
+        }
+        setMatchingPastas(matching);
+      } else {
+        setMatchingPastas(pastas.map((pasta) => ({ pasta })));
+      }
     },
     [pastas, setMatchingPastas, setLinked],
   );
@@ -100,7 +121,7 @@ export default function Pastas({ pastas }: PastasProps) {
     }
 
     const lengths: number[] = [];
-    const lanes: Pasta[][] = [];
+    const lanes: PastaWithMatch[][] = [];
 
     for (let i = 0; i < nColumns; i += 1) {
       lengths.push(0);
@@ -110,7 +131,7 @@ export default function Pastas({ pastas }: PastasProps) {
     for (const pasta of matchingPastas) {
       const i = lengths.indexOf(Math.min(...lengths));
       lanes[i].push(pasta);
-      lengths[i] += pastaLengths[pasta.key];
+      lengths[i] += pastaLengths[pasta.pasta.key];
     }
 
     return lanes;
@@ -163,12 +184,12 @@ export default function Pastas({ pastas }: PastasProps) {
         {columns.map((col, idx) => (
           <div key={idx}>
             {col.map((p) => (
-              <div className="mb-4" key={p.key}>
+              <div className="mb-4" key={p.pasta.key}>
                 <CopyPasta
-                  data={p}
                   onCategoryClicked={setSearchToCategory}
                   onLinkClicked={onLinkClicked}
-                  linked={p.key === linked}
+                  linked={p.pasta.key === linked}
+                  {...p}
                 />
               </div>
             ))}

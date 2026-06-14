@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import type { Pasta } from "./pasta";
+import type { SearchMatch } from "./search-match";
 
 interface CopyPastaProps {
-  data: Pasta;
+  pasta: Pasta;
   onCategoryClicked?: (category: string) => void;
   onLinkClicked?: (event: MouseEvent<HTMLAnchorElement>, key: number) => void;
+  match?: SearchMatch;
   linked?: boolean;
 }
 
 export default function CopyPasta({
-  data,
+  pasta,
   onCategoryClicked,
   onLinkClicked,
+  match,
   linked = false,
 }: CopyPastaProps) {
   const [copied, setCopied] = useState<number>();
@@ -22,13 +25,13 @@ export default function CopyPasta({
   }, [setCopied]);
 
   const copy = useCallback(() => {
-    navigator.clipboard.writeText(data.pasta).then(() => {
+    navigator.clipboard.writeText(pasta.pasta).then(() => {
       if (copied !== undefined) {
         window.clearTimeout(copied);
       }
       setCopied(window.setTimeout(clearCopied, 2000));
     });
-  }, [data, copied, setCopied, clearCopied]);
+  }, [pasta, copied, setCopied, clearCopied]);
 
   useEffect(() => {
     if (copied !== undefined) {
@@ -44,30 +47,34 @@ export default function CopyPasta({
 
   useEffect(() => {
     if (linked && ref.current) {
-      window.history.replaceState(null, "", "#pasta-" + String(data.key));
+      window.history.replaceState(null, "", "#pasta-" + String(pasta.key));
       ref.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [linked, data]);
+  }, [linked, pasta]);
 
   return (
     <>
       <div className="text-xs px-3 mb-1 flex justify-between">
         <button
-          className="cursor-pointer"
+          className={
+            match?.type === "category"
+              ? "cursor-pointer bg-blue-300 text-black"
+              : "cursor-pointer"
+          }
           onClick={useCallback(
-            () => onCategoryClicked?.(data.category),
-            [onCategoryClicked, data],
+            () => onCategoryClicked?.(pasta.category),
+            [onCategoryClicked, pasta],
           )}
         >
-          {data.category}
+          {pasta.category}
         </button>
         <a
-          id={`pasta-${data.key}`}
-          href={`#pasta-${data.key}`}
+          id={`pasta-${pasta.key}`}
+          href={`#pasta-${pasta.key}`}
           ref={ref}
           onClick={useCallback(
-            (e) => onLinkClicked?.(e, data.key),
-            [onLinkClicked, data],
+            (e) => onLinkClicked?.(e, pasta.key),
+            [onLinkClicked, pasta],
           )}
         >
           link
@@ -93,7 +100,17 @@ export default function CopyPasta({
           naultz24
         </span>
         {": "}
-        {data.pasta}
+        {match?.type === "pasta" ? (
+          <>
+            {pasta.pasta.substring(0, match.start)}
+            <span className="bg-blue-300 text-black">
+              {pasta.pasta.substring(match.start, match.end)}
+            </span>
+            {pasta.pasta.substring(match.end)}
+          </>
+        ) : (
+          pasta.pasta
+        )}
         <button
           className="text-xl rounded-xl cursor-pointer transition-all absolute w-full h-full left-0 top-0 bg-transparent text-transparent outline-1 hover:outline-gray-300 hover:text-inherit hover:bg-black/70"
           onClick={copy}
