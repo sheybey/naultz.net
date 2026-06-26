@@ -9,6 +9,7 @@ import { useDebounce, useWidth } from "./hooks";
 import CopyPasta from "./CopyPasta";
 import Dialog from "./Dialog";
 import type { SearchMatch } from "./search-match";
+import ScrollToTop from "./ScrollToTop";
 
 interface PastasProps {
   pastas: Pasta[];
@@ -151,7 +152,7 @@ export default function Pastas({ pastas }: PastasProps) {
   }, [numPastas]);
 
   return (
-    <div className="py-8 px-2 w-full flex flex-col items-center justify-start gap-6">
+    <div className="py-8 px-2 w-full flex flex-col items-center justify-start gap-6 mb-2">
       <div className="flex items-center justify-center gap-4">
         <Dialog numPastas={numPastas} />
         <button className="cursor-pointer underline" onClick={randomPasta}>
@@ -204,6 +205,7 @@ export default function Pastas({ pastas }: PastasProps) {
           </div>
         ))}
       </div>
+      <ScrollToTop />
     </div>
   );
 }

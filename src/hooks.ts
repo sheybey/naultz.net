@@ -32,3 +32,13 @@ export function useDebounce<TArgs extends unknown[]>(
     [handle, setHandle, timeout, callback],
   );
 }
+
+export function useScrollHeight() {
+  return useSyncExternalStore(
+    (callback) => {
+      document.addEventListener("scrollend", callback);
+      return () => document.removeEventListener("scrollend", callback);
+    },
+    () => window.scrollY,
+  );
+}
