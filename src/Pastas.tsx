@@ -145,10 +145,18 @@ export default function Pastas({ pastas }: PastasProps) {
     [setLinked],
   );
 
+  const numPastas = pastas.length;
+  const randomPasta = useCallback(() => {
+    setLinked(Math.floor(Math.random() * numPastas));
+  }, [numPastas]);
+
   return (
     <div className="py-8 px-2 w-full flex flex-col items-center justify-start gap-6">
-      <div>
-        <Dialog numPastas={pastas.length} />
+      <div className="flex items-center justify-center gap-4">
+        <Dialog numPastas={numPastas} />
+        <button className="cursor-pointer underline" onClick={randomPasta}>
+          Random pasta
+        </button>
       </div>
       <div className="w-full max-w-4xl relative">
         <input
