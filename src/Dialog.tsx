@@ -63,7 +63,11 @@ export default function Dialog({ numPastas }: DialogProps) {
         <p>
           If you've spotted something broken, or if your CSS chops are better than mine,
           feel free to{" "}
-          <a className="underline" href="https://github.com/sheybey/naultz.net">
+          <a
+            className="underline"
+            href="https://github.com/sheybey/naultz.net"
+            target="_blank"
+          >
             contribute a fix!
           </a>
         </p>
