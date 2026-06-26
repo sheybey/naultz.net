@@ -148,7 +148,7 @@ export default function Pastas({ pastas }: PastasProps) {
   return (
     <div className="py-8 px-2 w-full flex flex-col items-center justify-start gap-6">
       <div>
-        <Dialog />
+        <Dialog numPastas={pastas.length} />
       </div>
       <div className="w-full max-w-4xl relative">
         <input

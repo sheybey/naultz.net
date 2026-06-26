@@ -1,6 +1,10 @@
 import { useCallback, useRef } from "react";
 
-export default function Dialog() {
+interface DialogProps {
+  numPastas: number;
+}
+
+export default function Dialog({ numPastas }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
   const show = useCallback(() => {
@@ -45,7 +49,7 @@ export default function Dialog() {
           why not instead preserve his brand of humor for others to enjoy?
         </p>
         <p className="my-3">
-          This site is a collection of <strong>over 600</strong> copy-pastable messages
+          This site is a collection of <strong>{numPastas}</strong> copy-pastable messages
           curated by the man himself, formerly in a Google doc distributed to only his
           most trusted memesters. Use the search bar to find a message relevant to what's
           happening in the stream you're watching, copy it, and paste as appropriate.
