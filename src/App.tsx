@@ -8,10 +8,30 @@ export default function App() {
   const [pasta, setPasta] = useState<Pasta[]>();
   const [error, setError] = useState<string>();
 
+  const [total, setTotal] = useState(0);
+  const [progress, setProgress] = useState(0);
+
   useEffect(() => {
     const controller = new AbortController();
     fetch("/pasta.csv", { signal: controller.signal })
-      .then((response) => response.text())
+      .then(async (response) => {
+        const lengthHeader = response.headers.get("content-length");
+        const length = lengthHeader ? parseInt(lengthHeader, 10) : 0;
+        if (length < 1) {
+          throw new Error("Rotten pasta - try refreshing!");
+        }
+        const bytes = new Uint8Array(length);
+        setTotal(length);
+        let p = 0;
+        for await (const chunk of response.body!) {
+          if (controller.signal.aborted) return "";
+          bytes.set(chunk, p);
+          p += chunk.length;
+          setProgress(p);
+        }
+        const decoder = new TextDecoder();
+        return decoder.decode(bytes);
+      })
       .then((csv) => {
         if (controller.signal.aborted) return;
         setPasta(
@@ -23,10 +43,12 @@ export default function App() {
         );
       })
       .catch((e) => {
-        if (e instanceof Error) {
-          setError(e.message);
-        } else {
-          setError("unknown error :(");
+        if (!controller.signal.aborted) {
+          if (e instanceof Error) {
+            setError(e.message);
+          } else {
+            setError("unknown error :(");
+          }
         }
       });
     return () => controller.abort();
@@ -38,7 +60,11 @@ export default function App() {
         <Pastas pastas={pasta} />
       ) : (
         <div className="my-8 text-center">
-          {error ? <span>error: {error}</span> : <Loading />}
+          {error ? (
+            <span>error: {error}</span>
+          ) : (
+            <Loading progress={progress} total={total} />
+          )}
         </div>
       )}
     </div>
