@@ -108,6 +108,11 @@ export default function Pastas({ pastas }: PastasProps) {
   );
   const updateMatchingPastasDebounced = useDebounce(250, updateMatchingPastas);
 
+  const clearSearch = useCallback(() => {
+    setSearch("");
+    updateMatchingPastas("");
+  }, [setSearch, updateMatchingPastas]);
+
   const setSearchToCategory = useCallback(
     (category: string) => {
       setSearch(category);
@@ -187,9 +192,28 @@ export default function Pastas({ pastas }: PastasProps) {
             {c}
           </button>)}
         </div>*/}
+        {search.length > 0 && (
+          <button
+            onClick={clearSearch}
+            className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-2xl"
+          >
+            &times;
+          </button>
+        )}
       </div>
 
       <div className="flex gap-6">
+        {matchingPastas.length === 0 && (
+          <div className="flex items-center gap-2">
+            No match for "{search}."
+            <button
+              onClick={clearSearch}
+              className="rounded-sm text-xs bg-gray-800 p-1 cursor-pointer"
+            >
+              Clear search
+            </button>
+          </div>
+        )}
         {columns.map((col, idx) => (
           <div key={idx}>
             {col.map((p) => (
